@@ -1,11 +1,12 @@
 #include "GameMap.h"
 #include "GamePlayer.h"
+#include "GameBullet.h"
 
 USING_NS_CC;
 
 #define BLUTTE_SPEED 0.15f
 
-GameMap::GameMap(void)
+GameMap::GameMap(void):score(NULL), scores(0)
 {
 }
 
@@ -33,6 +34,45 @@ CCScene *GameMap::createGameScence()
 	return scence;
 }
 
+void GameMap::update(float dt)
+{
+
+	CCArray *bl = m_bullet->m_Bullets;
+	for (unsigned int i = 0; i < bl->count(); i++)
+	{
+		CCSprite *bullet = static_cast<CCSprite *>(bl->objectAtIndex(i));
+		//计算子弹所处的区域
+		CCRect bulletRect = CCRectMake(bullet->getPositionX() - bullet->getContentSize().width * bullet->getAnchorPoint().x, 
+			bullet->getPositionY() - bullet->getContentSize().height * bullet->getAnchorPoint().y, 
+			bullet->getContentSize().width, bullet->getContentSize().height);
+
+		//修正坐标系//问题待修正
+		bulletRect.origin.y -= CCDirector::sharedDirector()->getWinSize().height / 2;
+
+		//此处检测每个敌机和子弹的碰撞
+		CCArray *ene = m_enemy->m_Enemys;
+		for (unsigned int j = 0; j < ene->count(); j++)
+		{
+			CCSprite *existScreenEnemy = static_cast<CCSprite *>(ene->objectAtIndex(j));
+			//计算敌机所处的矩形区域
+			CCRect eneRect = CCRectMake(existScreenEnemy->getPositionX() - existScreenEnemy->getContentSize().width * existScreenEnemy->getAnchorPoint().x, 
+				existScreenEnemy->getPositionY() - existScreenEnemy->getContentSize().height * existScreenEnemy->getAnchorPoint().y, 
+				existScreenEnemy->getContentSize().width, existScreenEnemy->getContentSize().height);
+			
+			//如果二个矩形相交，碰撞
+			if (eneRect.intersectsRect(bulletRect))
+			{
+				CCLOG("====================Hit Enemy==================");
+				ene->removeObject(existScreenEnemy);
+				bl->removeObject(bullet);
+				m_enemy->m_EnemySprite->removeChild(existScreenEnemy, true);
+				m_bullet->m_BulltesSprite->removeChild(bullet, true);
+				scores += 10;
+			}
+
+		}
+	}
+}
 
 
 //初始化地图上的各种东西 
@@ -60,6 +100,12 @@ bool GameMap::init()
 	this->addChild(m_topBar);
 	m_topBar->setPosition(ccp(CCDirector::sharedDirector()->getWinSize().width / 2, 
 						CCDirector::sharedDirector()->getWinSize().height - m_topBar->getContentSize().height / 2));
+	score = CCLabelTTF::create(CCString::createWithFormat("%d", scores)->getCString(), "Arial", 17);
+	score->setColor(ccYELLOW);
+	score->setPosition(ccpAdd(m_topBar->getPosition(), ccp(-55, 20)));
+	this->addChild(score);
+
+
 
 	//游戏玩家飞机
 	GamePlayer *player = GamePlayer::shareGamePlayer();
@@ -67,19 +113,29 @@ bool GameMap::init()
 	player->setPosition(ccp(CCDirector::sharedDirector()->getWinSize().width / 2, player->getContentSize().height / 2));
 
 	//添加子弹
-	m_bullet = GameBullet::create();
+	m_bullet = GameBullet::sharedBullet();
 	m_bullet->setPosition(player->getPosition());
 	this->addChild(m_bullet);
 
 	//添加敌机
-	m_enemy = GameEnemy::create();
+	m_enemy = GameEnemy::sharedGameEnemy();
 	m_enemy->setPosition(ccp(CCDirector::sharedDirector()->getWinSize().width / 2, CCDirector::sharedDirector()->getWinSize().height / 2));
 	this->addChild(m_enemy);
 
 	this->schedule(schedule_selector(GameMap::autoLauchBullet), BLUTTE_SPEED);
 	this->schedule(schedule_selector(GameMap::autoCreateEnemy), BLUTTE_SPEED * 10);
+	this->schedule(schedule_selector(GameMap::freshScore), BLUTTE_SPEED);
+	this->scheduleUpdate();
+
 	this->setTouchEnabled(true);
+	return true;
 }
+//刷新分数
+void GameMap::freshScore(float dt)
+{
+	score->setString(CCString::createWithFormat("%d", scores)->getCString());
+}
+
 //自动发射子弹
 void GameMap::autoLauchBullet(float dt)
 {
@@ -94,6 +150,7 @@ void GameMap::autoCreateEnemy(float dt)
 bool GameMap::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 {
 	CCLOG("Touch Map!");
+	//m_bullet->createNewBullet();
 	return true;
 }
 void GameMap::onEnter()

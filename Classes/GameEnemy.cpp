@@ -10,6 +10,17 @@ GameEnemy::~GameEnemy()
 	CC_SAFE_RELEASE(m_Enemys);
 }
 
+//µ¥Àý
+static GameEnemy *enemy;
+GameEnemy *GameEnemy::sharedGameEnemy()
+{
+	if (!enemy)
+	{
+		enemy = GameEnemy::create();
+	}
+	return enemy;
+}
+
 bool GameEnemy::init()
 {
 	if (!CCLayer::init())
@@ -43,10 +54,9 @@ void GameEnemy::createNewEnemy()
 	int randPosX = rand() % static_cast<int>(CCDirector::sharedDirector()->getWinSize().width / 2  - 50) + 10;
 	CCLOG("RandPosX == %d", randPosX);
 	int ar[2] = {1, -1};
-	int r = rand() % 2;
-	CCLOG("Ar[r] == %d", ar[r]);
 
-	newEnemy->setPosition(ccp(randPosX * ar[r], CCDirector::sharedDirector()->getWinSize().height));
+
+	newEnemy->setPosition(ccp(randPosX * ar[rand() % 2], CCDirector::sharedDirector()->getWinSize().height - GameMap::sharedGameMap()->m_topBar->getContentSize().height - 330));
 	m_EnemySprite->addChild(newEnemy);
 	m_Enemys->addObject(newEnemy);
 

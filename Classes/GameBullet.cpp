@@ -11,6 +11,18 @@ GameBullet::~GameBullet()
 	//释放对应的子弹数组
 	CC_SAFE_RELEASE(m_Bullets);
 }
+
+static GameBullet *bullet;
+
+GameBullet *GameBullet::sharedBullet()
+{
+	if (!bullet)
+	{
+		bullet = GameBullet::create();
+	}
+	return bullet;
+}
+
 bool GameBullet::init()
 {
 	if (!CCLayer::init())
@@ -47,9 +59,10 @@ void GameBullet::createNewBullet()
 
 void GameBullet::moveBullet(float delay)
 {
-	for (int i = 0; i < m_Bullets->count(); i++)
+	for (unsigned int i = 0; i < m_Bullets->count(); i++)
 	{
 		CCSprite *bullet = static_cast<CCSprite *>(m_Bullets->objectAtIndex(i));
+
 		//移动新的位置
 		bullet->setPositionY(bullet->getPositionY() + 200.0 * delay);
 		

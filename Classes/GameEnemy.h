@@ -7,6 +7,9 @@ USING_NS_CC;
 class GameEnemy : public CCLayer
 {
 public:
+	CCArray *m_Enemys;//敌机数组
+	CCSprite *m_EnemySprite;
+	static GameEnemy *sharedGameEnemy();
 	GameEnemy();
 	~GameEnemy();
 	virtual bool init();
@@ -14,8 +17,8 @@ public:
 	
 	CREATE_FUNC(GameEnemy);
 private:
-	CCArray *m_Enemys;//敌机数组
-	CCSprite *m_EnemySprite;
+	
+	
 
 	void initEnemy();
 	void moveEnemy(float delta);

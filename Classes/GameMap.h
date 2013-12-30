@@ -17,7 +17,7 @@ public:
 	virtual bool init();
 	static cocos2d::CCScene *createGameScence();
 	virtual bool ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent);
-
+	virtual void update(float dt);
 	virtual void onEnter();
 	virtual void onExit();
 
@@ -25,8 +25,11 @@ public:
 private:
 	void autoCreateEnemy(float dt);
 	void autoLauchBullet(float dt);//自动发子弹
+	void freshScore(float dt);
 	GameBullet *m_bullet;
 	GameEnemy *m_enemy;
+	CCLabelTTF *score;
+	int scores;
 public:
 	CCSprite *m_topBar;
 };
