@@ -20,15 +20,17 @@ public:
 	virtual void update(float dt);
 	virtual void onEnter();
 	virtual void onExit();
-
+	void setExplosionSpr(CCObject *obj);
 	CREATE_FUNC(GameMap);
 private:
+	CCAnimation* explosionEffect(const char* singleName) ;//创建动画帧序列，爆炸
 	void autoCreateEnemy(float dt);
 	void autoLauchBullet(float dt);//自动发子弹
 	void freshScore(float dt);
 	GameBullet *m_bullet;
 	GameEnemy *m_enemy;
 	CCLabelTTF *score;
+	CCSprite *explosionSpr;
 	int scores;
 public:
 	CCSprite *m_topBar;

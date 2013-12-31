@@ -9,7 +9,6 @@ class GameEnemy : public CCLayer
 public:
 	CCArray *m_Enemys;//µÐ»úÊý×é
 	CCSprite *m_EnemySprite;
-	static GameEnemy *sharedGameEnemy();
 	GameEnemy();
 	~GameEnemy();
 	virtual bool init();

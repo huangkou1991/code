@@ -15,7 +15,6 @@ public:
 	CREATE_FUNC(GameBullet);
 	virtual bool init();
 	void createNewBullet();//创建一个新的子弹
-	static GameBullet *sharedBullet();
 
 private:
 

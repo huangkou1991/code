@@ -10,16 +10,6 @@ GameEnemy::~GameEnemy()
 	CC_SAFE_RELEASE(m_Enemys);
 }
 
-//µ¥Àý
-static GameEnemy *enemy;
-GameEnemy *GameEnemy::sharedGameEnemy()
-{
-	if (!enemy)
-	{
-		enemy = GameEnemy::create();
-	}
-	return enemy;
-}
 
 bool GameEnemy::init()
 {

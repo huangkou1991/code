@@ -12,17 +12,6 @@ GameBullet::~GameBullet()
 	CC_SAFE_RELEASE(m_Bullets);
 }
 
-static GameBullet *bullet;
-
-GameBullet *GameBullet::sharedBullet()
-{
-	if (!bullet)
-	{
-		bullet = GameBullet::create();
-	}
-	return bullet;
-}
-
 bool GameBullet::init()
 {
 	if (!CCLayer::init())

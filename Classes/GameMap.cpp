@@ -1,12 +1,13 @@
 #include "GameMap.h"
 #include "GamePlayer.h"
 #include "GameBullet.h"
+#include "SimpleAudioEngine.h"
 
 USING_NS_CC;
 
 #define BLUTTE_SPEED 0.15f
 
-GameMap::GameMap(void):score(NULL), scores(0)
+GameMap::GameMap(void):score(NULL), scores(0),explosionSpr(NULL)
 {
 }
 
@@ -32,6 +33,32 @@ CCScene *GameMap::createGameScence()
 	GameMap *map = GameMap::sharedGameMap();
 	scence->addChild(map);
 	return scence;
+}
+
+CCAnimation* GameMap::explosionEffect( const char* singleName ) 
+{
+	
+	CCSpriteFrameCache* spriteFrameCache = CCSpriteFrameCache::sharedSpriteFrameCache();
+
+	int index = 1;
+	CCSpriteFrame* frame = NULL;
+
+	CCArray* frameArray = CCArray::create();
+	do 
+	{
+		frame = spriteFrameCache->spriteFrameByName(
+			CCString::createWithFormat("%s%d.png", singleName, index)->getCString());
+
+		if(frame == NULL) {
+			break;
+		}
+
+		frameArray->addObject(frame);
+		index++;
+
+	} while (true);
+
+	return CCAnimation::createWithSpriteFrames(frameArray);
 }
 
 void GameMap::update(float dt)
@@ -61,7 +88,29 @@ void GameMap::update(float dt)
 			
 			//如果二个矩形相交，碰撞
 			if (eneRect.intersectsRect(bulletRect))
-			{
+			{	
+				CocosDenshion::SimpleAudioEngine::sharedEngine()->playEffect("snd_explosion2.wav");
+				CCAnimation * animation=CCAnimation::create();  
+				for (int i = 1; i < 7; i++)  
+				{  
+					char name[40];  
+					sprintf(name,"spr_explosion1_%d.png",i);  
+					animation->addSpriteFrameWithFileName(name);  
+				}  
+				animation->setDelayPerUnit(1.2f/20.0f);  
+				//animation->setRestoreOriginalFrame(false);  
+
+				CCAnimate *eff=CCAnimate::create(animation);  
+
+
+				CCSprite *explosionSpr = CCSprite::createWithSpriteFrameName("spr_explosion1_1.png");
+				explosionSpr->setPosition(ccpAdd(bullet->getPosition(), ccp(CCDirector::sharedDirector()->getWinSize().width / 2 - 5, 30)));
+				this->addChild(explosionSpr);
+				CCSequence *seq = CCSequence::create(eff, CCCallFuncO::create(this, callfuncO_selector(GameMap::setExplosionSpr), explosionSpr),NULL);
+
+				explosionSpr->runAction(seq);
+
+
 				CCLOG("====================Hit Enemy==================");
 				ene->removeObject(existScreenEnemy);
 				bl->removeObject(bullet);
@@ -74,10 +123,18 @@ void GameMap::update(float dt)
 	}
 }
 
-
+void GameMap::setExplosionSpr(CCObject *obj)
+{
+	CCLOG("set explosion status!");
+	CCSprite *explosionSpr = (CCSprite *)obj;
+	explosionSpr->setVisible(false);
+	//this->removeChild(explosionSpr, true);
+}
 //初始化地图上的各种东西 
 bool GameMap::init()
 {
+
+	CCSpriteFrameCache::sharedSpriteFrameCache()->addSpriteFramesWithFile("game_res.plist");
 	if (!CCLayer::init())
 	{
 		return false;
@@ -113,15 +170,16 @@ bool GameMap::init()
 	player->setPosition(ccp(CCDirector::sharedDirector()->getWinSize().width / 2, player->getContentSize().height / 2));
 
 	//添加子弹
-	m_bullet = GameBullet::sharedBullet();
+	m_bullet = GameBullet::create();
 	m_bullet->setPosition(player->getPosition());
 	this->addChild(m_bullet);
 
 	//添加敌机
-	m_enemy = GameEnemy::sharedGameEnemy();
+	m_enemy = GameEnemy::create();
 	m_enemy->setPosition(ccp(CCDirector::sharedDirector()->getWinSize().width / 2, CCDirector::sharedDirector()->getWinSize().height / 2));
 	this->addChild(m_enemy);
-
+	
+	//加入定时器，定时刷新
 	this->schedule(schedule_selector(GameMap::autoLauchBullet), BLUTTE_SPEED);
 	this->schedule(schedule_selector(GameMap::autoCreateEnemy), BLUTTE_SPEED * 10);
 	this->schedule(schedule_selector(GameMap::freshScore), BLUTTE_SPEED);
@@ -140,7 +198,9 @@ void GameMap::freshScore(float dt)
 void GameMap::autoLauchBullet(float dt)
 {
 	m_bullet->createNewBullet();
+	CocosDenshion::SimpleAudioEngine::sharedEngine()->playEffect("snd_explosion3.wav");
 }
+//定时创建敌人
 void GameMap::autoCreateEnemy(float dt)
 {
 	m_enemy->createNewEnemy();
@@ -156,6 +216,7 @@ bool GameMap::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 void GameMap::onEnter()
 {
 	CCLayer::onEnter();
+	CocosDenshion::SimpleAudioEngine::sharedEngine()->playBackgroundMusic("Battle.mp3", true);
 	this->setTouchEnabled(true);
 	CCDirector::sharedDirector()->getTouchDispatcher()->addTargetedDelegate(this, 0, true);
 }
