@@ -6,9 +6,11 @@ USING_NS_CC;
 
 class GameEnemy : public CCLayer
 {
+	//敌机数组
+	CC_SYNTHESIZE(CCArray *, m_Enemys, EnemyArray);
+	//敌机sprite
+	CC_SYNTHESIZE(CCSprite *, m_EnemySprite, EnemySprite);
 public:
-	CCArray *m_Enemys;//敌机数组
-	CCSprite *m_EnemySprite;
 	GameEnemy();
 	~GameEnemy();
 	virtual bool init();

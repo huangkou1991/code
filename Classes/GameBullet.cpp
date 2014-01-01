@@ -22,11 +22,13 @@ bool GameBullet::init()
 
 void GameBullet::initBullet()
 {
+	
 	//构建子弹数组
 	m_Bullets = CCArray::create();
 	m_Bullets->retain();
 
 	//构建子弹贴图
+
 	m_BulltesSprite = CCSpriteBatchNode::create("spr_bullet.png");
 	m_BulltesSprite->setPosition(CCPointZero);
 	this->addChild(m_BulltesSprite);
@@ -38,9 +40,9 @@ void GameBullet::initBullet()
 //产生新的子弹
 void GameBullet::createNewBullet()
 {
-	CCLOG("Create New Bullet");
+	//CCLOG("Create New Bullet");
 	CCSprite *newBullet = CCSprite::createWithTexture(m_BulltesSprite->getTexture());
-	newBullet->setPosition(ccpSub(GamePlayer::shareGamePlayer()->getPosition(), ccp(CCDirector::sharedDirector()->getWinSize().width / 2, 0)));
+	newBullet->setPosition(ccpSub(GamePlayer::shareGamePlayer()->getPosition(), ccp(CCDirector::sharedDirector()->getWinSize().width / 2, -8)));
 	m_BulltesSprite->addChild(newBullet);
 
 	m_Bullets->addObject(newBullet);
@@ -56,9 +58,9 @@ void GameBullet::moveBullet(float delay)
 		bullet->setPositionY(bullet->getPositionY() + 200.0 * delay);
 		
 		if (bullet->getPositionY() >= CCDirector::sharedDirector()->getWinSize().height - 
-			GameMap::sharedGameMap()->m_topBar->getContentSize().height * 2 + 30)
+			GameMap::sharedGameMap()->getTopBar()->getContentSize().height * 2 + 30)
 		{
-			CCLOG("Bullets Out Of Bounds");
+			//CCLOG("Bullets Out Of Bounds");
 			m_Bullets->removeObjectAtIndex(i);
 			m_BulltesSprite->removeChild(bullet, true);
 		}

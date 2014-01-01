@@ -1,5 +1,6 @@
 #include "GameEnemy.h"
 #include "GameMap.h"
+#include "GamePlayer.h"
 
 GameEnemy::GameEnemy() : m_Enemys(NULL), m_EnemySprite(NULL)
 {
@@ -33,7 +34,7 @@ void GameEnemy::initEnemy()
 }
 void GameEnemy::createNewEnemy()
 {
-	CCLOG("New Enemy");
+	//CCLOG("New Enemy");
 	srand((unsigned)time(NULL));
 	//随机某个敌机贴图
 	unsigned int seq = rand() % 3 + 1;
@@ -42,11 +43,11 @@ void GameEnemy::createNewEnemy()
 
 	//敌机出现的位置
 	int randPosX = rand() % static_cast<int>(CCDirector::sharedDirector()->getWinSize().width / 2  - 50) + 10;
-	CCLOG("RandPosX == %d", randPosX);
+	//CCLOG("RandPosX == %d", randPosX);
 	int ar[2] = {1, -1};
 
 
-	newEnemy->setPosition(ccp(randPosX * ar[rand() % 2], CCDirector::sharedDirector()->getWinSize().height - GameMap::sharedGameMap()->m_topBar->getContentSize().height - 330));
+	newEnemy->setPosition(ccp(randPosX * ar[rand() % 2], CCDirector::sharedDirector()->getWinSize().height - GameMap::sharedGameMap()->getTopBar()->getContentSize().height - 330));
 	m_EnemySprite->addChild(newEnemy);
 	m_Enemys->addObject(newEnemy);
 
@@ -57,10 +58,12 @@ void GameEnemy::moveEnemy(float delta)
 	{
 		CCSprite *enemy = static_cast<CCSprite *>(m_Enemys->objectAtIndex(i));
 		enemy->setPositionY(enemy->getPositionY() - 80 * delta);
+		//敌机移动中检测是否与玩家碰撞
+
 
 		if (enemy->getPositionY() < - CCDirector::sharedDirector()->getWinSize().height / 2 - 10)
 		{
-			CCLOG("Enemy Out Of Bounds");
+			//CCLOG("Enemy Out Of Bounds");
 			m_Enemys->removeObjectAtIndex(i);
 			m_EnemySprite->removeChild(enemy, true);
 		}

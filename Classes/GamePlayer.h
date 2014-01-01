@@ -10,6 +10,7 @@ class GamePlayer : public CCSprite, public CCTargetedTouchDelegate
 private:
 	bool PlayerIsSelect;
 public:
+	CCSprite *m_player;
 	GamePlayer();
 	~GamePlayer();
 	
