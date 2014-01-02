@@ -144,7 +144,7 @@ bool GameMap::init()
 						CCDirector::sharedDirector()->getWinSize().height - m_topBar->getContentSize().height / 2));
 	scoreLabel = CCLabelTTF::create(CCString::createWithFormat("%d", scores)->getCString(), "Arial", 17);
 	scoreLabel->setColor(ccYELLOW);
-	scoreLabel->setPosition(ccpAdd(m_topBar->getPosition(), ccp(-55, 20)));
+	scoreLabel->setPosition(ccpAdd(m_topBar->getPosition(), ccp(-55, 19)));
 	this->addChild(scoreLabel);
 
 
@@ -235,7 +235,7 @@ void GameMap::checkPlayerHitEnemy(float dt)
 			CCSequence *seq = CCSequence::create(eff, CCCallFuncO::create(this, callfuncO_selector(GameMap::setExplosionSpr), explosionSpr),NULL);
 
 			explosionSpr->runAction(seq);
-
+			CocosDenshion::SimpleAudioEngine::sharedEngine()->playEffect("snd_explosion2.wav");
 
 			player->setPosition(ccp(CCDirector::sharedDirector()->getWinSize().width / 2, player->getContentSize().height / 2));
 			player->setScale(0.3);
